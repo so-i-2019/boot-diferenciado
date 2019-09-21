@@ -15,7 +15,7 @@ text: times 30 db 0
 
 printf_welcome:
 
-	mov al, [welcome_string + bx] ;access the position 'dh' of the string
+	mov al, [welcome_string + bx] ;access the position 'bx' of the string
 
 	cmp al, 0x0			;compare al with \0
 	je bx_with_zero
@@ -55,15 +55,15 @@ put_terminator:
 	mov bx, 0x0
 	mov eax, 0x0
 
-;eax // INICIO
-;dx //FIM
+;bx // INICIO
+;edx //FIM
 mov bh, 0
 
 palindrome:
 
-	movzx ebx, bx
+	movzx ebx, bx ;16 --> 32 bits
 
-	cmp ebx, edx
+	cmp ebx, edx  
 	jg print_is_palindrome
 
 	mov cl, [text+bx]
@@ -87,7 +87,7 @@ print_is_palindrome:
 
 	loop1:
 
-	mov al, [is_palindrome + bx] ;access the position 'dh' of the string
+	mov al, [is_palindrome + bx] ;access the position 'bx' of the string
 
 	cmp al, 0x0			;compare al with \0
 	je end
@@ -110,7 +110,7 @@ print_is_not_palindrome:
 
 	loop2:
 
-	mov al, [is_not_palindrome + bx] ;access the position 'dh' of the string
+	mov al, [is_not_palindrome + bx] ;access the position 'bx' of the string
 
 	cmp al, 0x0			;compare al with \0
 	je end
