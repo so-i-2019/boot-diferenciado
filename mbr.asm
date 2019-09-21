@@ -1,95 +1,136 @@
-	;; mbr.asm - A simple x86 bootloader example.
-	;;
-	;; In worship to the seven hacker gods and for the honor 
-	;; of source code realm, we hereby humbly offer our sacred 
-	;; "Hello World" sacrifice. May our code remain bugless.
+org 0x7c00			;Our load address
 
-	
-	org 0x7c00		; Our load address
+;;Ensure segment:offset values are ok after program is loaded
 
-	
-	;; Ensure segment:offset values are ok after program is loaded 
- 
-	xor ax, ax
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	jmp init
+;TIRA ESSA PORRA DPS
 
-init:	
-	mov ah, 0xe		; Configure BIOS teletype mode
+mov bx, 0  ;Initializing bx --> 0
+mov dx, 0  ;Initializing bx --> 0
+mov cx, 0  ;Initializing bx --> 0
+mov ax, 0  ;Initializing dh --> 0
 
-	mov bx, 0		; May be 0 because org directive.
+mov ah, 0xe
 
-loop:				; Write a 0x0-terminated ascii string
-	mov al, [here + bx]	
-	int 0x10
-	cmp al, 0x0
+text: times 30 db 0
+
+printf_welcome:
+
+	mov al, [welcome_string + bx] ;access the position 'dh' of the string
+
+	cmp al, 0x0			;compare al with \0
+	je bx_with_zero
+
+	int 0x10			;print command
+	add bx, 0x1			;iterate through the string
+
+	jmp printf_welcome		;jump back
+
+
+bx_with_zero:
+	mov bx, 0
+	je read_string
+
+read_string:
+
+	mov ah, 0		;Configure BIOS for reading
+	int 0x16		;Read from the keybord
+	mov ah, 0xe		;Configure BIOS for printing
+
+	cmp al, 0xd
+	je put_terminator
+
+	int 0x10		;print what's in al
+
+	mov [text + bx], al ;move the character read to the array
+	add bx, 0x1
+
+	jmp read_string
+
+put_terminator:
+
+	mov cx, 0
+	mov [text + bx], cx ;moves the null terminator to the string
+	movzx edx, bx
+	sub edx, 1
+	mov bx, 0x0
+	mov eax, 0x0
+
+;eax // INICIO
+;dx //FIM
+mov bh, 0
+
+palindrome:
+
+	movzx ebx, bx
+
+	cmp ebx, edx
+	jg print_is_palindrome
+
+	mov cl, [text+bx]
+	cmp [text+edx], cl
+	jne print_is_not_palindrome
+	add bx, 1
+	sub edx, 1
+
+	jmp palindrome
+
+print_is_palindrome:
+
+	mov ah, 0xe
+
+	mov al, 0xa		;prints a new line
+	int 0x10		;print command
+	mov al, 0xd		;goes to the begin of the line
+	int 0x10		;print command
+
+	mov bx, 0x0
+
+	loop1:
+
+	mov al, [is_palindrome + bx] ;access the position 'dh' of the string
+
+	cmp al, 0x0			;compare al with \0
 	je end
-	add bx, 0x1		
-	jmp loop
 
-end:				; Jump forever (same as jmp end)
+	int 0x10			;print command
+	add bx, 0x1			;iterate through the string
+
+	jmp loop1		;jump back
+
+print_is_not_palindrome:
+
+	mov ah, 0xe
+
+	mov al, 0xa		;prints a new line
+	int 0x10		;print command
+	mov al, 0xd		;goes to the begin of the line
+	int 0x10		;print command
+
+	mov bx, 0x0
+
+	loop2:
+
+	mov al, [is_not_palindrome + bx] ;access the position 'dh' of the string
+
+	cmp al, 0x0			;compare al with \0
+	je end
+
+	int 0x10			;print command
+	add bx, 0x1			;iterate through the string
+
+	jmp loop2		;jump back
+
+
+
+;TIRA ESSA PORRA DPS
+
+end:
+
 	jmp $
 
-here:				; C-like NULL terminated string
+	welcome_string:	db 'Welcome.Checking palindrome string.Insert the string:', 0xd, 0xa, 0x0
+	is_palindrome: db 'String IS palindrome!!!', 0xd, 0xa, 0x0
+	is_not_palindrome: db 'String IS NOT palindrome!!!', 0xd, 0xa, 0x0
 
-	db 'Hello world!', 0xd, 0xa, 0x0
-	
 	times 510 - ($-$$) db 0	; Pad with zeros
 	dw 0xaa55		; Boot signature
-
-		
-	;; Notes (remove these comments for your code).
-	;; 
-	;; This assembly source code is written for x86 architecture in intel 
-	;; syntax and NASM  assembler dialect. It's mean to be compiled with 
-	;; NASM assembler.
-	;; 
-	;; A label (such as 'loop:') is interpreted by the prepossessesor as
-	;; the offset to (byte count at) the next command (jmp instruction, 
-	;; in this example).
-	;; 
-	;; The directive org 0x7c00 intructs the compiler to automatically
-	;; add the load address to the offset when necessary. Therefore,
-	;; 'mov al, label' virtually becomes 'mov al, label + 0x7c00'. 
-	;; 
-	;; BIOS interruption 'int 0x10' causes the execution flow to jump to 
-	;; the interruption vector table area, where there is a pre-loaded BIOS
-	;; routine capable of outputing characters to the video controller.
-	;; This interruption handler routine reads the byte at the 8-bit
-	;; register and send to the video controller. The video operation
-	;; mode (e.g. ascii character) is controlled by register ah.
-	;; After completing the operation, execution flow is returned to
-	;; the next line after 'int' instruction.
-	;;
-	;; The argument of jmp and je instructions, here, is a relative offset. 
-	;;
-	;; The line db causes the ouput of 1-byte patters at the current
-	;; position in the generated machine code. For instance, the string
-	;; 'Hello World' followed by newline and return ascii codes is inserted
-	;; in the given location.
-	;; 
-	;; The directive 'times X Y' produces a sequence of X repetitions of
-	;; of Y. The type specification 'db' means that Y is a byte (8 bits).
-	;; If it were dw, it would mean 'word', i.e. 16 bits.
-	;;
-	;; Symbol $  denotes the address of (byte count at) the current line.
-	;; Symbol $$ denotes the address of (byte count at) the start of current
-	;; section (in present case, we have only one section). Therefore, the
-	;; value ($-$$) is the current address minus the address of the
-	;; program start. We need 510 minus this amount of zeros.
-	;;
-	;; The line dw causes the output of the 2-byte pattern for the boot
-	;; signature at the current position (positions 511 and 512).
-	;;
-	;; Tip: the first lines after "org directive" are meant ot
-	;; setup correct values to segment registers after loading.
-	;; This is necessary because some 'bugged' BIOS leave us at
-	;; 0x7C00:0x0000, not in 0x0000:0x7C00, that is the same place,
-	;; but with offset 0. Briefly, we zero the involved segment registers
-	;; and jump to init, which causes its address 0x7c00 to be suitably
-	;; loaded into the segment:offset registers. Without this, your usb
-	;; stick may not boot into your physical computer.
-
