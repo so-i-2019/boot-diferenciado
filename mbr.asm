@@ -2,8 +2,6 @@ org 0x7c00			;Our load address
 
 ;;Ensure segment:offset values are ok after program is loaded
 
-;TIRA ESSA PORRA DPS
-
 mov bx, 0  ;Initializing bx --> 0
 mov dx, 0  ;Initializing bx --> 0
 mov cx, 0  ;Initializing bx --> 0
@@ -33,7 +31,7 @@ bx_with_zero:
 read_string:
 
 	mov ah, 0		;Configure BIOS for reading
-	int 0x16		;Read from the keybord
+	int 0x16		;Read from the keyboard
 	mov ah, 0xe		;Configure BIOS for printing
 
 	cmp al, 0xd
@@ -119,10 +117,6 @@ print_is_not_palindrome:
 	add bx, 0x1			;iterate through the string
 
 	jmp loop2		;jump back
-
-
-
-;TIRA ESSA PORRA DPS
 
 end:
 
