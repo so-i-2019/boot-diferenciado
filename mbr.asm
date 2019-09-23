@@ -1,6 +1,14 @@
+	;; Copyright (c) 2019 - Mateus Ferreira Gomes mateusfgomes@usp.br
+	;; 						Guilherme Targon Marques Barcellos guitargon@usp.br
+	;;
+	;; This is free software and distributed under GNU GPL vr.3. Please 
+	;; refer to the companion file LICENSING or to the online documentation
+	;; at https://www.gnu.org/licenses/gpl-3.0.txt for further information.
+
+
 org 0x7c00			;Our load address
 
-;;Ensure segment:offset values are ok after program is loaded
+	;;Ensure segment:offset values are ok after program is loaded
 
 mov bx, 0  ;Initializing bx --> 0
 mov dx, 0  ;Initializing bx --> 0
